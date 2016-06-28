@@ -1,0 +1,6 @@
+bin/
+pkg/
+src/gopkg.in
+src/github.com
+src/proxy/proxy
+src/proxy/proxy_suite_test.go
