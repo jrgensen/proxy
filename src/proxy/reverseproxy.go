@@ -1,12 +1,11 @@
-// Copyright 2011 The Go Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
 // HTTP reverse proxy handler
 
-package httputil
+// This file is a copy of net/http/httputil/reverseproxy.go from upstream Go with some modifications.
+
+package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -215,6 +214,7 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		p.logf("http: proxy error: %v", err)
 		rw.WriteHeader(http.StatusBadGateway)
+		rw.Write([]byte(fmt.Sprintf("Proxy error when accessing %v:\n%v", outreq.URL, err)))
 		return
 	}
 

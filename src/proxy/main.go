@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"strings"
 	"time"
 )
@@ -23,7 +22,7 @@ func main() {
 	flag.Parse()
 
 	fmt.Println("starting proxy on port", *port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), &httputil.ReverseProxy{
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), &ReverseProxy{
 		Director: func(req *http.Request) {
 			req.URL.Host = strings.Split(req.Host, ".")[0]
 			req.URL.Scheme = "http"
