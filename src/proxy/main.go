@@ -59,6 +59,10 @@ func (t errorHandlingTransport) RoundTrip(request *http.Request) (*http.Response
 }
 
 func createErrorMsg(str string) ClosingBuffer {
+	// Suppress "friendly error pages" in IE and Chrome.
+	if len(str) < 512 {
+		str += strings.Repeat(" ", 512-len(str))
+	}
 	return ClosingBuffer{bytes.NewBufferString(str)}
 }
 
