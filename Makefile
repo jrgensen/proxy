@@ -23,4 +23,7 @@ dependencies:
 test: dependencies
 	$(DOCKER) go test ./...
 
+fmt:
+	$(DOCKER) go fmt ./...
+
 .PHONY: compile build watch dependencies test init
