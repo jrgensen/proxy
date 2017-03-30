@@ -2,16 +2,25 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"strings"
 	"time"
+
+	"crypto/rsa"
+	"github.com/SermoDigital/jose/crypto"
+	"github.com/SermoDigital/jose/jws"
 )
+
+var cookie_name *string
+var certificate *rsa.PublicKey
 
 func Log(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -71,6 +80,24 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	handler := &httputil.ReverseProxy{
 		Transport: errorHandlingTransport{http.DefaultTransport},
 		Director: func(req *http.Request) {
+			jwtToken, err := req.Cookie(*cookie_name)
+			if err == nil {
+				jwt, err := jws.ParseJWT([]byte(jwtToken.Value))
+				if err != nil {
+					log.Printf("%v", err)
+				} else if err = jwt.Validate(certificate, crypto.SigningMethodRS256); err != nil {
+					log.Printf("%v", err)
+				} else {
+					claims := jwt.Claims()
+					json, err := json.Marshal(claims)
+					if err == nil {
+						jsonString := string(json)
+						req.Header.Set("X-BW7-Token", jsonString)
+					} else {
+						log.Printf("Could not marshal token into json - token: %+v - err: %+v", claims, err)
+					}
+				}
+			}
 			req.URL.Host = strings.Split(req.Host, ".")[0]
 			req.URL.Scheme = "http"
 		},
@@ -91,9 +118,28 @@ func isWebsocket(req *http.Request) bool {
 
 func main() {
 	port := flag.Int("port", 80, "listening on port")
+	cookie_name = flag.String("cookie_name", "", "jwt cookie name")
+	pubkeyfile := flag.String("pubkeyfile", "", "public key file")
 	flag.Parse()
 
+	if *pubkeyfile != "" {
+		bytes, err := ioutil.ReadFile(*pubkeyfile)
+		if err != nil {
+			log.Fatal(fmt.Sprintf("Error loading public key file: %s - %v", pubkeyfile, err))
+		}
+		certificate, err = crypto.ParseRSAPublicKeyFromPEM(bytes)
+		if err != nil {
+			log.Fatal(fmt.Sprintf("Error parsing public key file: %s - %v", pubkeyfile, err))
+		}
+		log.Printf("Loaded public key: %s", *pubkeyfile)
+	}
+
+	if *cookie_name != "" {
+		log.Printf("Using cookie: %s for jwt", *cookie_name)
+	}
+
 	fmt.Println("starting proxy on port", *port)
+
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), &Server{}))
 }
 
