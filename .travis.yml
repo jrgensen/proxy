@@ -1,0 +1,44 @@
+sudo: required
+
+services:
+  - docker
+
+branches:
+  only:
+    - master
+
+env:
+  global:
+    - REGISTRY: registry.blackwoodseven.com
+    - IMAGENAME: $REGISTRY/$TRAVIS_REPO_SLUG
+    - TAG_VERSION: $TRAVIS_BRANCH.$TRAVIS_BUILD_NUMBER
+    - TAG_LATEST: latest
+
+before_script:
+  - docker login -u bw7 -p "iron73?Morse" $REGISTRY
+  - echo "LABEL GIT_COMMIT=$TRAVIS_COMMIT" >> Dockerfile
+  - echo "LABEL TAG_VERSION=$TAG_VERSION" >> Dockerfile
+
+script:
+  - >
+    docker --version &&
+    docker-compose --version &&
+    make test &&
+    make compile &&
+    docker build $CACHE -t $IMAGENAME:$TAG_VERSION -t $IMAGENAME:$TAG_LATEST . &&
+    docker push $IMAGENAME:$TAG_VERSION &&
+    docker push $IMAGENAME:$TAG_LATEST
+
+after_success:
+  - >
+    git config --global user.email "tech@blackwoodseven.com" &&
+    git config --global user.name "Travis CI" &&
+    git tag -f $TAG_VERSION $TRAVIS_COMMIT &&
+    git push --tags &&
+    curl -G --data-urlencode "cause=$IMAGENAME:$TAG_VERSION build successfully on Travis" jenkins-buildtrigger.stage.blackwoodseven.com/?job=businesslogic-development\&token=bIsASXhoBfKaFHUrBBE7
+
+after_failure:
+  - echo failed
+
+notifications:
+  slack: blackwoodseven:YYkUF4AOl26pZkxo2pTSbfxf
