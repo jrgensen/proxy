@@ -41,4 +41,4 @@ after_failure:
   - echo failed
 
 notifications:
-  slack: blackwoodseven:YYkUF4AOl26pZkxo2pTSbfxf
+  slack: blackwoodseven:5xxWDhyF2u9XxNaGH7YNrAO7
