@@ -1,40 +1,31 @@
 sudo: required
 services:
-    - docker
-
+- docker
 branches:
   only:
-    - master
-
+  - master
 env:
   global:
-      - REGISTRY: registry.blackwoodseven.com
-      - IMAGENAME: "$REGISTRY/$TRAVIS_REPO_SLUG"
-      - TAG_VERSION: "$TRAVIS_BRANCH.$TRAVIS_BUILD_NUMBER"
-      - TAG_LATEST: latest
-      - secure: Ez9AJuuu6/hXmeZd06IwD+Yl/ko6fgQQNpuOYu/TYm6OEV7+2Cwig/gsWLPs9fxbE6u3bm/Gd4fWt5aE9rArucLwAMm4e4BJN8QWm51hc4garPeSrCY3epcpaluk4af3d3mAYdq6jS5fkrf2aWJVlDLMbPfcxGM7oRDBGNm8iWNlGugM/g2T2z94cj5tXbGuqWDxoyNqm5w8CPArmaKvSBDHsqVS/ZrCRqAhUjIX+Syp+Rq3EBwtT+SRQUuSqWeQkWTSff6lIUKLCdLhKOAfvvlGg0SZXabHgHaCM1jKo4llMnmoeda4nk3v2jvd/BC6Zknrrueo2dI1jK6mptHZz+QWvSDS8GPjyG+KGvM2x4WeWuaqpf9lX5fdghka/6TMCFeK3WCX7fGQnBTxQtQ3HU5qzqat9ffwLd4w/A5zdtXZda5+Y5W/JTnTe81/cyRujGnihca0TvmzSI1G2zBUS5gIHO1aE8V8T06lNSP4Pn2ESaJnwbflxxxz+Ui3iYiMBDPrdDj2hIy9GU0UcwYEQBtGXVDpkNo7wLMLE1a17pBAfpSPIxu0PqUWqt4L5Fd/owO/3vfRaeflQOJkRB7qB9btbncbkj7brp1sBJVp/9fmBRityfwSB1/IWBii2ZQTNiN+hR9dn4BMdvhvc46QHWDG5sr2pm+XgJ7RhudqzcI=
-
+  - REGISTRY: registry.blackwoodseven.com
+  - IMAGENAME: "$REGISTRY/$TRAVIS_REPO_SLUG"
+  - TAG_VERSION: "$TRAVIS_BRANCH.$TRAVIS_BUILD_NUMBER"
+  - TAG_LATEST: latest
+  - secure: cKA4RMosmO73fuCsW7Lm6Qf9IPsdO8moqWRBBtScP2bavZ9SSbnaTusBskKiesxrdsy3S1KXNsKC03SOOuyW+yIabW2rxOsdGzxAyGtrZoYZRffXEhOyUkliDYKaeBhmjA4jo6UQire4SH9cosY/xjaFHNCJPA2KDCmhXW7DTIqMNDnOphFJULNNZRu7OaYNR1hDxFbj/hPtEykp95nX9osIJZ5BKQBFqPEjFOzeLdEiKfKdgoh08KekFY7+gaXwO9VRUj5eoKKRBpXiwJI0/Xirx9GjObIHqI0eKXdyPMgCMzokvMXiq+trESjfPxPF8bmqyG3Dq7Cj5yuvHqmBv8wZImTEPvjm2PJyuCaNCVYEPusWNyZD2fiFDjSa3viEer9K6jpKH0yClF3mOoJldezYAxIHgP1LYcoLf7dgzwgakAYdxLS1/Jgd0eAMetWkEqFOmnVnrnC9FnXaEwAgTBBt6YrimIfVJiMKvewkUD9NJGOZb8bXBm9GoQsssPgzuyIoV/xoj9hZVPyFMRi/jZkixMnaeEGI2ZJfsrWq8MBZA1sHqusphcZFb0tBOIOiVJEvdcfc7Zuccg7GG4VAZZ+qSjfRoiq4/iq9+nLnzo1uPfMBHRolX6UqKSVYKrVGJE452ykhtEfZXjZiZdIr+S0j7Kq7fA7jpmIxxbYRICA=
 before_script:
-    - docker login -u businesslogic -p "$REGISTRY_PASSWORD" $REGISTRY
-    - echo "LABEL GIT_COMMIT=$TRAVIS_COMMIT" >> Dockerfile
-    - echo "LABEL TAG_VERSION=$TAG_VERSION" >> Dockerfile
-
+- docker login -u businesslogic -p "$REGISTRY_PASSWORD" $REGISTRY
+- echo "LABEL GIT_COMMIT=$TRAVIS_COMMIT" >> Dockerfile
+- echo "LABEL TAG_VERSION=$TAG_VERSION" >> Dockerfile
 script:
-    - 'docker --version && docker-compose --version && make test && make compile && docker
-      build $CACHE -t $IMAGENAME:$TAG_VERSION -t $IMAGENAME:$TAG_LATEST . && docker push
-      $IMAGENAME:$TAG_VERSION && docker push $IMAGENAME:$TAG_LATEST
-    '
-
+- 'docker --version && docker-compose --version && make test && make compile && docker
+  build $CACHE -t $IMAGENAME:$TAG_VERSION -t $IMAGENAME:$TAG_LATEST . && docker push
+  $IMAGENAME:$TAG_VERSION && docker push $IMAGENAME:$TAG_LATEST '
 after_success:
-    - 'git config --global user.email "tech@blackwoodseven.com" && git config --global
-      user.name "Travis CI" && git tag -f $TAG_VERSION $TRAVIS_COMMIT && git push --tags
-      && curl -G --data-urlencode "cause=$IMAGENAME:$TAG_VERSION build successfully on
-      Travis" jenkins-buildtrigger.stage.blackwoodseven.com/?job=businesslogic-development\&token=bIsASXhoBfKaFHUrBBE7
-    '
-
+- 'git config --global user.email "tech@blackwoodseven.com" && git config --global
+  user.name "Travis CI" && git tag -f $TAG_VERSION $TRAVIS_COMMIT && git push --tags
+  && curl -G --data-urlencode "cause=$IMAGENAME:$TAG_VERSION build successfully on
+  Travis" jenkins-buildtrigger.stage.blackwoodseven.com/?job=businesslogic-development\&token=bIsASXhoBfKaFHUrBBE7 '
 after_failure:
-    - echo failed
-
+- echo failed
 notifications:
   slack:
-    secure: Uk0rGMxvK9mtSYBs0CJk5v7pPNN/3zhN8PcTc1cOtIUH5KHBQHRF6Mf1wYHxKHlpGP9BBC20XM+8fJr57mtCsbn5oShRHi+bS6dsetMcJs+UOsS4xJNbkcomjTwvIG45dAYRy0XT5vT3qDJYh/7jl1iXyY3Z0YvF6M0OaOYoQLJvqVsq29IJ7k79Em1+ItkWkIRA6vZs7u+pQmKDnm+wLQUwwHsV7qED+K2B3VS05uYrPbKnuwbtUx64hYak3pmZ2FxAzDjjBCni0PzVsGooDwVHpwsDwBG+mpPPgx7f/AtgQDGPqCJFrhTJRuEIOYhD9ziUni3tQWbPYgPj1pVuwkkSjhWhIcQINa/d34uU6n2hnG0hXRccPwpWB1xni1J4BZnD1mefmYdWVT6c3PpYxFHDwoP039F/N3TG63n2nkNKT7Yejtcs33fnuK9QRhwqUUFvXCuIDeNoHPhoopgDFMakXfbfK+8xNKj2KQee8q4DxvRTnq94YmwvuyWIxKtXAWTLEgMJN+SCetuat9FUVQRO9ETmozdimc1PTV1bIzjaZc8pK9x4z7O0zlWLYePILkLUcl7bbH738VfA868VIvYYZA5I/TZDgIqUJ0w2B+p6NvDbeQP5wYDuPhZNqfA7R8dsz8chqoQZR5dri2N1zYuE7jz8L5cSQ8OmBn4JQbA=
+    secure: rchA54cZ1kRoIJS0rn/dCfVbP6MAjVwjuwcSrpQSL8YvvTD9o0oJRBcBESxHV0Y1BcihvR/jKduPFje1HhFLtTVTnFexkbzMQdplJxISuJMFMtKHd8xnTJeviS55m9anKqqiTK7zVo1WeT39A8pZzMBwwYdvKUamhKP+S5OdLPYe9x/4PrDWrgllJatw/FVn9YGaX0J5wUTXJX3xwVNPldIjnP7jLHfEQJRL3xSXpCcKess1a7SjQRG49l+yfmUdmVicWyqtjyade2eV/9GDDTHTGQJr2ZRDpdH1LIK1n8lttuFlJHK5atUfoJb4yYIG1JGhrbwErgg4RKH5dYs6AG91IQr12L8Hs0abN1mg9H0p5Apb++tCnu4mzRfTOhJAbS8hNoQW2NzxmyeqtFpJuz3jD45DpnkXJOn84ZN0rOXyOLE24uoYzdbWrL67YrkeyyPocE6Mq2ATfn+n7bfneLLDE7Tb8PvQt3CRw31umUE/pH9VMczs3I32L7f3HNHRI+ZyabtTk3PRA55RUPF7DFXSWBK1faL5NfWt8r1Xgvho2UPreCgaEJ0Rxayy5i7m7IIl3rNjvhiVekoEnmY6FXJ+ZwvVqe4jIFwR+FSLrepGww+kMBm7ILuiSDka2spQFWE8dj7Y4Bi/z+ZmQU0NHZY2dsyk179GhduQ/4zhGz4=
