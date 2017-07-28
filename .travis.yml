@@ -16,7 +16,7 @@ env:
   - secure: e0vZFmLVhIdxd2qdMj64s7WP5c0+F/AcfqJASDdVTss8r71g8XwCKFJsGqHqg6gEs9qZQYuzGFbJzdgrGy4m8/k9DzB+o4WT+tqjdt/8uuyAKlDA1yNrbPywwfiUGnwG9kjQdLhXCTDYX9WyAHcxMBJ2knuiAutTrALjpTs3/nH4kHkq4drWpzlqpkoWrTwl/DH924I6mLK8QEjy6/glyBYGhTKlk7UUxLPwQtL9AbMDaFuP4vqeegrgs0cIRPyUW6O1qiTfy5eKtyoyIRd7BdQFY1QeYc+YqKy2+L2boaV6K06GWV7W0eIoadHvyJSCmiuAaB0xoYHaiVZ/Lv2b9FDSz7Hkq+QHMeiaeEpH9cTRekaqZ0oGwOoAyyAqIzS7Cbl+TJK5qOVTwHm1eYWRmY+/40n1fngmctaOv7kQUYl0Xyt8NpFC4Afe3FhuzDaXCHkcmMp9gJf710VpuAh00I+TKPXZS++UOn7Z/nUU6t2g/SIs2Ivr+PwvRTLrHnGGrkQfdCAF1GtVozj81FkVE6SpA8lAGEGiXhAR5SgpLFSecBPeCmc7i6Ve/yWu/Oi3CSrLpe6HAbYEbkpO1zpJb/zO+zgPI9dYgFEBQJIjfji1FjzR6sL0tXAkqIXdEwUMV7GY+a/jCD5cxDoOEuU9GCHGJ+GFuhxPDz+sP8dRyLM=
 
 before_script:
-- docker login -u businesslogic -p "$REGISTRY_PASSWORD" $REGISTRY
+- docker login -u travis -p "$REGISTRY_PASSWORD" $REGISTRY
 - echo "LABEL GIT_COMMIT=$TRAVIS_COMMIT" >> Dockerfile
 - echo "LABEL TAG_VERSION=$TAG_VERSION" >> Dockerfile
 
