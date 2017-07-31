@@ -34,8 +34,7 @@ after_success:
   git config --global user.email "tech@blackwoodseven.com" &&
   git config --global user.name "Travis CI" &&
   git tag -f $TAG_VERSION $TRAVIS_COMMIT &&
-  git push --tags &&
-  curl -G --data-urlencode "cause=$IMAGENAME:$TAG_VERSION build successfully on Travis" jenkins-buildtrigger.stage.blackwoodseven.com/?job=businesslogic-development\&token=bIsASXhoBfKaFHUrBBE7
+  git push --tags
 
 after_failure:
 - echo failed
