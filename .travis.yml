@@ -25,7 +25,7 @@ script:
   docker --version &&
   docker-compose --version &&
   make test compile &&
-  docker build $CACHE -t $IMAGENAME:$TAG_VERSION -t $IMAGENAME:$TAG_LATEST . &&
+  docker build -t $IMAGENAME:$TAG_VERSION -t $IMAGENAME:$TAG_LATEST . &&
   docker push $IMAGENAME:$TAG_VERSION &&
   docker push $IMAGENAME:$TAG_LATEST
 
