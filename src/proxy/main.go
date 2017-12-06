@@ -11,6 +11,8 @@ import (
 	"net"
 	"net/http"
 	"net/http/httputil"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -21,6 +23,7 @@ import (
 
 var cookie_name *string
 var certificate *rsa.PublicKey
+var http_ports map[string]int
 
 func Log(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -100,6 +103,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			req.URL.Host = strings.Split(req.Host, ".")[0]
 			req.URL.Scheme = "http"
+
+			if port, ok := http_ports[req.URL.Host]; ok {
+				req.URL.Host = fmt.Sprintf("%s:%d", req.URL.Host, port)
+			}
 		},
 	}
 	handler.ServeHTTP(w, r)
@@ -121,6 +128,15 @@ func main() {
 	cookie_name = flag.String("cookie_name", "", "jwt cookie name")
 	pubkeyfile := flag.String("pubkeyfile", "", "public key file")
 	flag.Parse()
+
+	http_ports = make(map[string]int)
+	for _, hostport := range strings.Fields(os.Getenv("HTTP_PORTS")) {
+		host, port, err := net.SplitHostPort(hostport)
+		if err != nil {
+			log.Fatal(fmt.Sprintf("Error parsing HTTP_PORTS: %s - %v", os.Getenv("HTTP_PORTS"), err))
+		}
+		http_ports[host], _ = strconv.Atoi(port)
+	}
 
 	if *pubkeyfile != "" {
 		bytes, err := ioutil.ReadFile(*pubkeyfile)
